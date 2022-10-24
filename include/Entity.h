@@ -48,7 +48,9 @@ class Entity{
 		void setStateI(State state) { _state = state; }
 
 		class Game* getGame() { return _game; }
-
+		
+		void addComponent(class Component* component);
+		void removeComponent(class Component* component);
 	private:
 		State _state;
 		glm::mat4 _worldTransform;
