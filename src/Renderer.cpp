@@ -28,12 +28,16 @@ Renderer::~Renderer(){
 
 }
 
-bool Renderer::initialize(float screenW, float screenH){
+bool Renderer::initialize(float screenW, float screenH, float near , float far, float fov ){
 	_screenWidth = screenW;
 	_screenHeight = screenH;
+    _near = near;
+    _far = far;
+    _fov = fov;
 
-	
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	// Specify version 3.3
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -211,25 +215,38 @@ Mesh* Renderer::getMesh(const std::string &fileName){
 	return mesh;
 }
 
-bool Renderer::loadShaders(){
-	_spriteShader = new Shader();
-	if(!_spriteShader->load("../Shaders/Sprite.vert", "Shaders/Sprite.frag"))
-		return false;
-	_spriteShader->setActive();
-	//TODO: esta wea
-	glm::mat4 viewProj = glm::mat4(1.0f);
-	_spriteShader->setMatrixUniform("uViewProj", viewProj);
-
-	_meshShader = new Shader();
-	if(!_meshShader->load("../Shaders/Phong.vert", "../Shaders/Phong.frag"))
-		return false;
-	_meshShader->setActive();
-	_view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	//TODO: esta wea
-	_projection = glm::mat4(1.0f);
-	_meshShader->setMatrixUniform("uViewProj", _view * _projection);
-	return true;
+glm::mat4 CreateSimpleViewProj(float width, float height){
+    float temp[16] =
+            {
+                    2.0f/width, 0.0f, 0.0f, 0.0f ,
+                     0.0f, 2.0f/height, 0.0f, 0.0f ,
+                     0.0f, 0.0f, 1.0f, 0.0f ,
+                     0.0f, 0.0f, 1.0f, 1.0f
+            };
+    return glm::make_mat4(temp);
 }
+
+
+bool Renderer::loadShaders(){
+    _spriteShader = new Shader();
+    if(!_spriteShader->load("../Shaders/Sprite.vert", "Shaders/Sprite.frag"))
+        return false;
+    _spriteShader->setActive();
+    // TODO:
+    // CHECK IF VIEW PROJ IS CORREC
+    glm::mat4 viewProj = CreateSimpleViewProj(_screenWidth, _screenHeight);
+    _spriteShader->setMatrixUniform("uViewProj", viewProj);
+    _meshShader = new Shader();
+    if(!_meshShader->load("../Shaders/Phong.vert", "../Shaders/Phong.frag"))
+        return false;
+    _meshShader->setActive();
+    glm::vec3 eye(0.0f, 0.0f, 0.0f), center (1.0f, 0.0f, 0.0f), up(0.0f, 0.0f, 1.0f);
+    _view = glm::lookAt(eye, center, up);
+    _projection  = glm::perspectiveFov(_fov, _screenWidth, _screenHeight, _near, _far);
+    _meshShader->setMatrixUniform("uViewProj", _view * _projection);
+    return true;
+}
+
 
 void Renderer::createSpriteVerts(){
 	
@@ -259,14 +276,10 @@ void Renderer::setLightUniforms(class Shader* shader){
 }
 
 glm::vec3 Renderer::unproject(const glm::vec3 &screenPoint) const {
-	glm::vec3 deviceCoord = screenPoint;
-	deviceCoord.x /= (_screenWidth) * 0.5f;
-	deviceCoord.y /= (_screenHeight) * 0.5f;
-
-	glm::mat4 unprojection = _view * _projection;
-	glm::inverse(unprojection);
-	//TODO: esta wea
-	return glm::vec3(0.f); 
+    glm::vec3 deviceCoord = screenPoint;
+    glm::vec4 viewport(0.0f,0.0f, _screenWidth, _screenHeight);
+    return  glm::unProject(deviceCoord, _view * _projection, _projection, viewport);
+}
 }
 
 void Renderer::getScreenDirection(glm::vec3 &outStart, glm::vec3 &outDir) const {

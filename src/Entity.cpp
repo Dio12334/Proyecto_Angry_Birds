@@ -60,11 +60,38 @@ void Entity::EntityInput(const uint8_t *keyState){
 }
 
 void Entity::rotateToNewForward(const glm::vec3 &forward){
-	//TODO: toda esta wea
+    auto unit_x = glm::vec3(1.0f, 0.0f, 0.0f);
+    auto unit_z = glm::vec3(0.0f, 0.0f, 1.0f);
+
+    auto dot = glm::dot(unit_x, forward);
+    auto angle = acosf(dot);
+
+    auto identity = glm::quat_identity<float, glm::defaultp>();
+
+    if(dot > 0.9999f)
+        setRotation(identity);
+    else if (dot < -0.9999f){
+
+        setRotation( glm::angleAxis(180.0f, unit_z) ) ;
+    }
+    else{
+        glm::vec3 axis = glm::normalize( glm::cross(unit_x, forward) );
+        setRotation( glm::angleAxis(angle, axis) ) ;
+    }
 }
 
 void Entity::computeWorldTransform(){
-	//TODO: toda esta wea
+
+    if(_recomputeWorldTransform){
+        _recomputeWorldTransform = false;
+        _worldTransform = glm::scale(glm::mat4(0.0f), glm::vec3(_scale,_scale,_scale));
+        _worldTransform *=  glm::toMat4(_rotation);
+        _worldTransform *= glm::translate(glm::mat4(0.0f), _position);
+
+        for(auto comp: _components){
+            comp->onUpdateWorldTransform();
+        }
+    }
 }
 
 void Entity::addComponent(class Component *component){

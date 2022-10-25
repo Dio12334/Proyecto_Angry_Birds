@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <SDL2/SDL.h>
 #include <string>
-
+#include <glm/gtc/type_ptr.hpp>
 
 struct DirectionalLight{
 	glm::vec3 direction;
@@ -20,7 +20,7 @@ class Renderer{
 		Renderer(class Game* game);
 		~Renderer();
 
-		bool initialize(float screenW, float screenH);
+        bool initialize(float screenW, float screenH, float near = 10.0f, float far = 10000.0f, float fov = 70.0f);
 		void shutdown();
 		void unloadData();
 
@@ -69,8 +69,11 @@ class Renderer{
 		glm::mat4 _view;
 		glm::mat4 _projection;
 
-		float _screenWidth;
-		float _screenHeight;
+        float _screenWidth;
+        float _screenHeight;
+        float _far;
+        float _near;
+        float _fov;  //degree unless GLM_FORCE_RADIANS  is used
 
 		glm::vec3 _ambientLight;
 		DirectionalLight _dirLight;
