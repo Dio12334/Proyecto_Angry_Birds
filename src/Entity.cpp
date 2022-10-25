@@ -2,11 +2,14 @@
 #include "../include/Game.h"
 #include "../include/Component.h"
 #include <algorithm>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/dual_quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 Entity::Entity(class Game* game):
 	_state(eActive),
 	_position(glm::vec3(0.0f, 0.0f, 0.0f)),
-	_rotation(glm::quat(1.0f)),
+	_rotation(glm::quat()),
 	_scale(1.0f),
 	_game(game),
 	_recomputeWorldTransform(true)
