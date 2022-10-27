@@ -12,8 +12,11 @@
 #include <SDL2/SDL_log.h>
 #include <glm/glm.hpp>
 
+const float INF = 2e38;
+
+
 Mesh::Mesh():
-	_box(/*vec3 infinito, vec3 -infinito*/),
+	_box(glm::vec3(-INF,-INF,-INF),  glm::vec3(INF,INF,INF)),
 	_vertexArray(nullptr),
 	_radius(0.0f),
 	_specPower(100.0f)

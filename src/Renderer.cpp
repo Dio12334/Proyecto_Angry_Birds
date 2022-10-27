@@ -280,7 +280,6 @@ glm::vec3 Renderer::unproject(const glm::vec3 &screenPoint) const {
     glm::vec4 viewport(0.0f,0.0f, _screenWidth, _screenHeight);
     return  glm::unProject(deviceCoord, _view * _projection, _projection, viewport);
 }
-}
 
 void Renderer::getScreenDirection(glm::vec3 &outStart, glm::vec3 &outDir) const {
 	glm::vec3 screenPoint(0.0f, 0.0f, 0.0f);

@@ -2,6 +2,7 @@
 #define COLLISION_H
 
 
+#include <cmath>
 #include <glm/fwd.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -76,5 +77,10 @@ bool intersect(const LineSegment& l, const Plane& p, float& outT);
 bool intersect(const LineSegment& l, const AABB& b, float& outT, glm::vec3& outNorm);
 
 bool sweptSphere(const Sphere& P0, const Sphere& P1, const Sphere& Q0, const Sphere& Q1, float& t);
+
+bool nearZero(float a, float epsilon = 0.001f){
+    return std::fabs(a) < epsilon;
+}
+
 #endif
 
