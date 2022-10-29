@@ -229,7 +229,7 @@ glm::mat4 CreateSimpleViewProj(float width, float height){
 
 bool Renderer::loadShaders(){
     _spriteShader = new Shader();
-    if(!_spriteShader->load("../Shaders/Sprite.vert", "Shaders/Sprite.frag"))
+    if(!_spriteShader->load("Shaders/Sprite.vert", "Shaders/Sprite.frag"))
         return false;
     _spriteShader->setActive();
     // TODO:
@@ -237,7 +237,7 @@ bool Renderer::loadShaders(){
     glm::mat4 viewProj = CreateSimpleViewProj(_screenWidth, _screenHeight);
     _spriteShader->setMatrixUniform("uViewProj", viewProj);
     _meshShader = new Shader();
-    if(!_meshShader->load("../Shaders/Phong.vert", "../Shaders/Phong.frag"))
+    if(!_meshShader->load("Shaders/Phong.vert", "Shaders/Phong.frag"))
         return false;
     _meshShader->setActive();
     glm::vec3 eye(0.0f, 0.0f, 0.0f), center (1.0f, 0.0f, 0.0f), up(0.0f, 0.0f, 1.0f);

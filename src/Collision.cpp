@@ -147,7 +147,7 @@ float AABB::minDistSq(const glm::vec3 &point) const {
     return 0;
 }
 
-Capsule::Capsule(const glm::vec3 &start, const glm::vec3 &end, float radius) {
+Capsule::Capsule(const glm::vec3 &start, const glm::vec3 &end, float radius): segment(start, end), radius(radius) {
 
 }
 

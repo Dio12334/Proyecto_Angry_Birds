@@ -3,7 +3,7 @@ CODEDIRS= src .# where are the .c/.cpp?
 INCDIRS= include# where are the .h/.hpp?
 
 
-LINKERFLAGS = -lSDL2 -lSOIL -lGLEW 
+LINKERFLAGS = -lSDL2 -lSOIL -lGL -lGLEW 
 CC=g++
 OPT=-O2
 # generate files that encode make rules for the .h dependencies
