@@ -1,13 +1,9 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
-#include <glm/fwd.hpp>
-#include <glm/glm.hpp>
+#include "Math.h"
 #include <vector>
 #include <cstdint>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-
 
 class Entity{
 	public:
@@ -25,24 +21,24 @@ class Entity{
 		virtual void updateEntity(float deltaTime);
 
 		void processInput(const uint8_t* keyState);
-		virtual void EntityInput(const uint8_t* keyState);
+		virtual void entityInput(const uint8_t* keyState);
 
-		const glm::vec3& getPosition() const { return _position; }
-		void setPosition(const glm::vec3& pos) { _position = pos; _recomputeWorldTransform = true; }
+		const Vector3& getPosition() const { return _position; }
+		void setPosition(const Vector3& pos) { _position = pos; _recomputeWorldTransform = true; }
+
 		float getScale() const { return _scale; }
 		void setScale(float scale) { _scale = scale; _recomputeWorldTransform = true; }
 		
-		const glm::quat& getRotation() const { return _rotation; }
-		void setRotation(const glm::quat& rotation) { _rotation = rotation; _recomputeWorldTransform = true; }
+		const Quaternion& getRotation() const { return _rotation; }
+		void setRotation(const Quaternion& rotation) { _rotation = rotation; _recomputeWorldTransform = true; }
 
 		void computeWorldTransform();
-		const glm::mat4& getWorldTransform() const { return _worldTransform; }
+		const Matrix4& getWorldTransform() const { return _worldTransform; }
 
-		/* glm::vec3 getForward() const { return glm::vec3(glm::vec3(1.0f, 0.0f, 0.0f), _rotation); } */
-		glm::vec3 getForward() const;
-		glm::vec3 getRight() const;
+		Vector3 getForward() const { return Vector3::Transform(Vector3::UnitX, _rotation); } 
+		Vector3 getRight() const { return Vector3::Transform(Vector3::UnitY, _rotation); }
 
-		void rotateToNewForward(const glm::vec3& forward);
+		void rotateToNewForward(const Vector3& forward);
 
 		State getState() const { return _state; }
 		void setStateI(State state) { _state = state; }
@@ -51,16 +47,24 @@ class Entity{
 		
 		void addComponent(class Component* component);
 		void removeComponent(class Component* component);
+
+		void displayInfo();
+
+		void setDisplayInfo(bool info) { _displayInfo = info; }
+		bool getDisplayInfo() const { return _displayInfo; }
+
 	private:
 		State _state;
-		glm::mat4 _worldTransform;
-		glm::vec3 _position;
-		glm::quat _rotation;
+		Matrix4 _worldTransform;
+		Vector3 _position;
+		Quaternion _rotation;
 		float _scale;
 		bool _recomputeWorldTransform;
 
 		std::vector<class Component*> _components;
 		class Game* _game;
+	
+		bool _displayInfo;
 };
 
 #endif

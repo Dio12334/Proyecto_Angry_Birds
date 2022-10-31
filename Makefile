@@ -1,9 +1,9 @@
 BINARY=a.out # name of the binary
-CODEDIRS= src .# where are the .c/.cpp?
-INCDIRS= include# where are the .h/.hpp?
+CODEDIRS= src . ./imgui-1.88 ./imgui-1.88/backends# where are the .c/.cpp?
+INCDIRS= include ./imgui-1.88 ./imgui-1.88/backends# where are the .h/.hpp?
 
 
-LINKERFLAGS = -lSDL2 -lSOIL -lGL -lGLEW 
+LINKERFLAGS = -ldl -lSDL2 -lSOIL -lGL -lGLEW  
 CC=g++
 OPT=-O2
 # generate files that encode make rules for the .h dependencies

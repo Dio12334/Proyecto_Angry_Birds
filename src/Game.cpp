@@ -1,6 +1,11 @@
 #include "../include/Game.h"
 #include "../include/Renderer.h"
 #include "../include/Entity.h"
+#include "../include/ImguiHeaders.h"
+#include "../include/CameraEntity.h"
+#include "../include/MeshComponent.h"
+#include "../include/MoveComponent.h"
+
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_timer.h>
@@ -30,7 +35,6 @@ bool Game::initialize(){
 		_renderer = nullptr;
 		return false;
 	}
-
 	loadData();
 	_ticksCount = SDL_GetTicks();
 	return true;
@@ -47,12 +51,17 @@ void Game::runloop(){
 void Game::processInput(){
 	SDL_Event event;
 	while(SDL_PollEvent(&event)){
+		ImGui_ImplSDL2_ProcessEvent(&event);
 		switch(event.type){
 			case SDL_QUIT:
 				_isRunning = false;
 				break;
 		}
 	}
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
 	const Uint8* state = SDL_GetKeyboardState(nullptr);
 	if(state[SDL_SCANCODE_ESCAPE]){
 		_isRunning = false;
@@ -96,11 +105,33 @@ void Game::updateGame(){
 }
 
 void Game::generateOutput(){
+	for(auto entity: _entities){
+		if(entity->getDisplayInfo()){
+			entity->displayInfo();
+		}
+	}
 	_renderer->draw();
 }
 
 void Game::loadData(){
+	
+	Entity* e = new Entity(this);
+	e->setPosition(Vector3(200.f, 75.f, 0.f));
+	e->setScale(100.0f);
+	e->setDisplayInfo(true);
+	Quaternion q(Vector3::UnitY, -Math::PiOver2);
+	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::Pi/4.f));
+	MeshComponent* me = new MeshComponent(e);
+	me->setMesh(_renderer->getMesh("Assets/Cube.gpmesh"));
+	MoveComponent* mv = new MoveComponent(e);
 
+	_renderer->setAmbientLight(Vector3(0.2f, 0.2f, 0.2f));
+	DirectionalLight& dir = _renderer->getDirectionalLight();
+	dir.direction = Vector3(0.0f, -0.707f, -0.707f);
+	dir.diffuseColor = Vector3(0.78f, 0.88f, 1.f);
+	dir.specColor = Vector3(0.8f, 0.8f, 0.8f);
+
+	_cameraEntity = new CameraEntity(this);
 }
 
 void Game::unloadData(){

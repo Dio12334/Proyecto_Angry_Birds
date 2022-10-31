@@ -1,7 +1,7 @@
 #include "../include/Shader.h"
+#include "../include/Math.h"
 #include <SDL2/SDL.h>
 #include <cstring>
-#include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -45,14 +45,14 @@ void Shader::setActive(){
 	glUseProgram(_shaderProgram);
 }
 
-void Shader::setMatrixUniform(const char *name, const glm::mat4 &matrix){
+void Shader::setMatrixUniform(const char *name, const Matrix4 &matrix){
 	GLuint loc = glGetUniformLocation(_shaderProgram, name);	
-	glUniformMatrix4fv(loc, 1, GL_TRUE, glm::value_ptr(matrix));
+	glUniformMatrix4fv(loc, 1, GL_TRUE, matrix.GetAsFloatPtr());
 }
 
-void Shader::setVectorUniform(const char *name, const glm::vec3 &vector){
+void Shader::setVectorUniform(const char *name, const Vector3 &vector){
 	GLuint loc = glGetUniformLocation(_shaderProgram, name);
-	glUniform3fv(loc, 1, glm::value_ptr(vector));
+	glUniform3fv(loc, 1, vector.GetAsFloatPtr());
 }
 
 void Shader::setFloatUniform(const char *name, float value){

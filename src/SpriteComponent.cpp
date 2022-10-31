@@ -4,7 +4,7 @@
 #include "../include/Entity.h"
 #include "../include/Game.h"
 #include "../include/Renderer.h"
-#include <glm/glm.hpp>
+#include "../include/Math.h"
 
 
 SpriteComponent::SpriteComponent(class Entity* owner, int drawOrder):
@@ -24,8 +24,8 @@ SpriteComponent::~SpriteComponent(){
 
 void SpriteComponent::draw(class Shader *shader){
 	if(_texture){
-		glm::mat4 scaleMat;
-		glm::mat4 world = scaleMat * _owner->getWorldTransform();
+		Matrix4 scaleMat;
+		Matrix4 world = scaleMat * _owner->getWorldTransform();
 		shader->setMatrixUniform("uWorldTransform", world);
 		_texture->setActive();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

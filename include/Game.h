@@ -36,6 +36,7 @@ class Game{
 		bool _isRunning;
 		bool _updatingEntities;
 
+		class CameraEntity* _cameraEntity;
 };
 
 #endif

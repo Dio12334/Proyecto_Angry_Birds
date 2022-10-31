@@ -6,12 +6,9 @@
 #include "../include/Mesh.h"
 #include "../include/SpriteComponent.h"
 #include "../include/MeshComponent.h"
+#include "../include/ImguiHeaders.h"
 #include <SDL2/SDL_video.h>
 #include <GL/glew.h>
-#include <glm/ext/quaternion_common.hpp>
-#include <glm/fwd.hpp>
-#include <glm/geometric.hpp>
-#include <glm/matrix.hpp>
 #include <algorithm>
 
 
@@ -90,6 +87,16 @@ bool Renderer::initialize(float screenW, float screenH, float near , float far, 
 	// Create quad for drawing sprites
 	createSpriteVerts();
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	_io = &ImGui::GetIO();
+	
+
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplSDL2_InitForOpenGL(_window, _context);
+	ImGui_ImplOpenGL3_Init("#version 130");
+
 	return true;
 }
 
@@ -99,6 +106,10 @@ void Renderer::shutdown(){
 	delete _spriteShader;
 	_meshShader->unload();
 	delete _meshShader;
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 	SDL_GL_DeleteContext(_context);
 	SDL_DestroyWindow(_window);
 }
@@ -118,6 +129,8 @@ void Renderer::unloadData(){
 }
 
 void Renderer::draw(){
+	ImGui::Render();
+	glViewport(0,0,(int)(*_io).DisplaySize.x, (int)(*_io).DisplaySize.y);	
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -145,7 +158,7 @@ void Renderer::draw(){
 			sprite->draw(_spriteShader);
 		}
 	}
-
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	SDL_GL_SwapWindow(_window);
 }
 
@@ -215,17 +228,6 @@ Mesh* Renderer::getMesh(const std::string &fileName){
 	return mesh;
 }
 
-glm::mat4 CreateSimpleViewProj(float width, float height){
-    float temp[16] =
-            {
-                    2.0f/width, 0.0f, 0.0f, 0.0f ,
-                     0.0f, 2.0f/height, 0.0f, 0.0f ,
-                     0.0f, 0.0f, 1.0f, 0.0f ,
-                     0.0f, 0.0f, 1.0f, 1.0f
-            };
-    return glm::make_mat4(temp);
-}
-
 
 bool Renderer::loadShaders(){
     _spriteShader = new Shader();
@@ -234,15 +236,14 @@ bool Renderer::loadShaders(){
     _spriteShader->setActive();
     // TODO:
     // CHECK IF VIEW PROJ IS CORREC
-    glm::mat4 viewProj = CreateSimpleViewProj(_screenWidth, _screenHeight);
+    Matrix4 viewProj = Matrix4::CreateSimpleViewProj(_screenWidth, _screenHeight);
     _spriteShader->setMatrixUniform("uViewProj", viewProj);
     _meshShader = new Shader();
     if(!_meshShader->load("Shaders/Phong.vert", "Shaders/Phong.frag"))
         return false;
     _meshShader->setActive();
-    glm::vec3 eye(0.0f, 0.0f, 0.0f), center (1.0f, 0.0f, 0.0f), up(0.0f, 0.0f, 1.0f);
-    _view = glm::lookAt(eye, center, up);
-    _projection  = glm::perspectiveFov(_fov, _screenWidth, _screenHeight, _near, _far);
+    _view = Matrix4::CreateLookAt(Vector3::Zero, Vector3::UnitX, Vector3::UnitZ);
+    _projection  = Matrix4::CreatePerspectiveFOV(Math::ToRadians(70.0f), _screenWidth, _screenHeight, 10.0f, 10000.0f);
     _meshShader->setMatrixUniform("uViewProj", _view * _projection);
     return true;
 }
@@ -266,26 +267,30 @@ void Renderer::createSpriteVerts(){
 }
 
 void Renderer::setLightUniforms(class Shader* shader){
-	glm::mat4 inView = _view;
-	glm::inverse(inView);
-	shader->setVectorUniform("uCameraPos", glm::vec3(inView[3][0], inView[3][1], inView[3][2]));	
+	Matrix4 inView = _view;
+	inView.Invert();
+	shader->setVectorUniform("uCameraPos", inView.GetTranslation());	
 	shader->setVectorUniform("uAmbientLight", _ambientLight);
 	shader->setVectorUniform("uDirLight.mDirection", _dirLight.direction);
 	shader->setVectorUniform("uDirLight.mDiffuseColor", _dirLight.diffuseColor);
 	shader->setVectorUniform("uDirLight.mSpecColor", _dirLight.specColor);
 }
 
-glm::vec3 Renderer::unproject(const glm::vec3 &screenPoint) const {
-    glm::vec3 deviceCoord = screenPoint;
-    glm::vec4 viewport(0.0f,0.0f, _screenWidth, _screenHeight);
-    return  glm::unProject(deviceCoord, _view * _projection, _projection, viewport);
+Vector3 Renderer::unproject(const Vector3 &screenPoint) const {
+    Vector3 deviceCoord = screenPoint;
+    deviceCoord.x /= (_screenWidth) * 0.5f;
+	deviceCoord.y /= (_screenHeight) * 0.5f;
+
+	Matrix4 unprojection = _view * _projection;
+	unprojection.Invert();
+	return Vector3::TransformWithPerspDiv(deviceCoord, unprojection);
 }
 
-void Renderer::getScreenDirection(glm::vec3 &outStart, glm::vec3 &outDir) const {
-	glm::vec3 screenPoint(0.0f, 0.0f, 0.0f);
+void Renderer::getScreenDirection(Vector3 &outStart, Vector3 &outDir) const {
+	Vector3 screenPoint(0.0f, 0.0f, 0.0f);
 	outStart = unproject(screenPoint);
 	screenPoint.z = 0.9f;
-	glm::vec3 end = unproject(screenPoint);
+	Vector3 end = unproject(screenPoint);
 	outDir = end - outStart;
-	glm::normalize(outDir);
+	outDir.Normalize();
 }

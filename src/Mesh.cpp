@@ -4,19 +4,13 @@
 #include "../include/VertexArray.h"
 #include <cmath>
 #include <fstream>
-#include <glm/geometric.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include <rapidjson/rapidjson.h>
 #include <sstream>
 #include <rapidjson/document.h>
 #include <SDL2/SDL_log.h>
-#include <glm/glm.hpp>
-
-const float INF = 2e38;
-
 
 Mesh::Mesh():
-	_box(glm::vec3(-INF,-INF,-INF),  glm::vec3(INF,INF,INF)),
+	_box(Vector3::NegInfinity,  Vector3::Infinity),
 	_vertexArray(nullptr),
 	_radius(0.0f),
 	_specPower(100.0f)
@@ -92,8 +86,8 @@ bool Mesh::load(const std::string &fileName, class Renderer *renderer){
 			SDL_Log("Unexpected vertex format for %s", fileName.c_str());
 			return false;
 		}
-		glm::vec3 pos(vert[0].GetDouble(), vert[1].GetDouble(), vert[2].GetDouble());
-		_radius = std::max(_radius, glm::length2(pos));
+		Vector3 pos(vert[0].GetDouble(), vert[1].GetDouble(), vert[2].GetDouble());
+		_radius = std::max(_radius, pos.LengthSq());
 		_box.updateMinMax(pos);
 
 		for(rapidjson::SizeType i = 0; i < vert.Size(); ++i){

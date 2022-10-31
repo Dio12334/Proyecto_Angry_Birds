@@ -1,18 +1,17 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <glm/fwd.hpp>
-#include <glm/glm.hpp>
+#include "Math.h"
+#include "ImguiHeaders.h"
 #include <vector>
 #include <unordered_map>
 #include <SDL2/SDL.h>
 #include <string>
-#include <glm/gtc/type_ptr.hpp>
 
 struct DirectionalLight{
-	glm::vec3 direction;
-	glm::vec3 diffuseColor;
-	glm::vec3 specColor;
+	Vector3 direction;
+	Vector3 diffuseColor;
+	Vector3 specColor;
 };
 
 class Renderer{
@@ -35,13 +34,13 @@ class Renderer{
 		class Texture* getTexture(const std::string& fileName);
 		class Mesh* getMesh(const std::string& fileName);
 
-		void setViewMatrix(const glm::mat4& view) { _view = view; }
-		void setAmbientLight(const glm::vec3& ambient) { _ambientLight = ambient; }
+		void setViewMatrix(const Matrix4& view) { _view = view; }
+		void setAmbientLight(const Vector3& ambient) { _ambientLight = ambient; }
 
 		DirectionalLight& getDirectionalLight() { return _dirLight; }
 
-		glm::vec3 unproject(const glm::vec3& screenPoint) const;
-		void getScreenDirection(glm::vec3& outStart, glm::vec3& outDir) const;
+		Vector3 unproject(const Vector3& screenPoint) const;
+		void getScreenDirection(Vector3& outStart, Vector3& outDir) const;
 		float getScreenWidth() const { return _screenWidth; }
 		float getScreenHeight() const { return _screenHeight; }
 
@@ -66,8 +65,8 @@ class Renderer{
 
 		class Shader* _meshShader;
 
-		glm::mat4 _view;
-		glm::mat4 _projection;
+		Matrix4 _view;
+		Matrix4 _projection;
 
         float _screenWidth;
         float _screenHeight;
@@ -75,11 +74,12 @@ class Renderer{
         float _near;
         float _fov;  //degree unless GLM_FORCE_RADIANS  is used
 
-		glm::vec3 _ambientLight;
+		Vector3 _ambientLight;
 		DirectionalLight _dirLight;
 
 		SDL_Window* _window;
 		SDL_GLContext _context;
+		ImGuiIO* _io;
 };
 
 #endif

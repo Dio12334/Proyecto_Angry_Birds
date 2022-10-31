@@ -1,18 +1,19 @@
 #include "../include/Entity.h"
 #include "../include/Game.h"
 #include "../include/Component.h"
+#include "../include/ImguiHeaders.h"
+
 #include <algorithm>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/dual_quaternion.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 Entity::Entity(class Game* game):
 	_state(eActive),
-	_position(glm::vec3(0.0f, 0.0f, 0.0f)),
-	_rotation(glm::quat()),
+	_worldTransform(Matrix4::Identity),
+	_position(Vector3::Zero),
+	_rotation(Quaternion::Identity),
 	_scale(1.0f),
+	_recomputeWorldTransform(true),
 	_game(game),
-	_recomputeWorldTransform(true)
+	_displayInfo(false)
 {
 	_game->addEntity(this);
 }
@@ -51,32 +52,27 @@ void Entity::processInput(const uint8_t *keyState){
 			comp->processInput(keyState);
 		}
 
-		EntityInput(keyState);
+		entityInput(keyState);
 	}
 }
 
-void Entity::EntityInput(const uint8_t *keyState){
+void Entity::entityInput(const uint8_t *keyState){
 
 }
 
-void Entity::rotateToNewForward(const glm::vec3 &forward){
-    auto unit_x = glm::vec3(1.0f, 0.0f, 0.0f);
-    auto unit_z = glm::vec3(0.0f, 0.0f, 1.0f);
-
-    auto dot = glm::dot(unit_x, forward);
-    auto angle = acosf(dot);
-
-    auto identity = glm::quat_identity<float, glm::defaultp>();
+void Entity::rotateToNewForward(const Vector3 &forward){
+    auto dot = Vector3::Dot(Vector3::UnitX, forward);
+    auto angle = Math::Acos(dot);
 
     if(dot > 0.9999f)
-        setRotation(identity);
+        setRotation(Quaternion::Identity);
     else if (dot < -0.9999f){
-
-        setRotation( glm::angleAxis(180.0f, unit_z) ) ;
+        setRotation(Quaternion(Vector3::UnitZ, Math::Pi));
     }
     else{
-        glm::vec3 axis = glm::normalize( glm::cross(unit_x, forward) );
-        setRotation( glm::angleAxis(angle, axis) ) ;
+        Vector3 axis = Vector3::Cross(Vector3::UnitX, forward);
+		axis.Normalize();
+        setRotation(Quaternion(axis, angle));
     }
 }
 
@@ -84,9 +80,9 @@ void Entity::computeWorldTransform(){
 
     if(_recomputeWorldTransform){
         _recomputeWorldTransform = false;
-        _worldTransform = glm::scale(glm::mat4(0.0f), glm::vec3(_scale,_scale,_scale));
-        _worldTransform *=  glm::toMat4(_rotation);
-        _worldTransform *= glm::translate(glm::mat4(0.0f), _position);
+        _worldTransform = Matrix4::CreateScale(_scale);
+        _worldTransform *=  Matrix4::CreateFromQuaternion(_rotation);
+        _worldTransform *= Matrix4::CreateTranslation(_position);
 
         for(auto comp: _components){
             comp->onUpdateWorldTransform();
@@ -109,4 +105,23 @@ void Entity::removeComponent(class Component *component){
 	if(iter != _components.end()){
 		_components.erase(iter);
 	}
+}
+
+void Entity::displayInfo(){
+	if(true){
+		ImGui::Begin("Entity Info");	
+		if(ImGui::CollapsingHeader("General Information")){
+			ImGui::InputFloat3("Position", &_position.x);
+			ImGui::SliderFloat("Scale", &_scale,0, 1000);
+			_recomputeWorldTransform = true;
+			computeWorldTransform();
+		}
+
+		for(auto comp: _components){
+			comp->displayInfo();
+		}
+
+		ImGui::End();
+	}
+
 }

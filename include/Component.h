@@ -15,6 +15,8 @@ class Component{
 
 		class Entity* getOwner() { return _owner; }
 		int getUpdateOrder() const { return _updateOrder; }
+
+		virtual void displayInfo() {}
 	protected:
 		class Entity* _owner;
 		int _updateOrder;
