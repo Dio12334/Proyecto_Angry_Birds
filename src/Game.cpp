@@ -19,7 +19,6 @@
 Game::Game():
 	_renderer(nullptr),
 	_inputSystem(nullptr),
-	/* _audioSystem(nullptr), */
 	_physWorld(nullptr),
 	_isRunning(true),
 	_updatingEntities(false),
@@ -80,13 +79,6 @@ void Game::processInput(){
 			case SDL_MOUSEWHEEL:
 				_inputSystem->processEvent(event);
 				break;
-			/* case SDL_KEYDOWN:{ */
-			/* 	const Uint8* keybo = SDL_GetKeyboardState(NULL); */
-			/* 	for(int i = 0; i < SDL_NUM_SCANCODES; ++i){ */
-			/* 		std::printf("%d ", keybo[i]); */
-			/* 	} */
-			/* 	break; */
-			/* 				 } */
 		}
 	}
 
@@ -162,7 +154,8 @@ void Game::loadData(){
 	e->setScale(100.0f);
 	e->setDisplayInfo(true);
 	Quaternion q(Vector3::UnitY, -Math::PiOver2);
-	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::Pi/4.f));
+	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::Pi + Math::Pi/4.f));
+	e->setRotation(q);
 	MeshComponent* me = new MeshComponent(e);
 	me->setMesh(_renderer->getMesh("Assets/Cube.gpmesh"));
 	MoveComponent* mv = new MoveComponent(e);

@@ -69,6 +69,6 @@ void PhysWorld::removeBox(class BoxComponent *box){
 	auto iter = std::find(_boxes.begin(), _boxes.end(), box);
 	if(iter != _boxes.end()){
 		std::iter_swap(iter, _boxes.end() - 1);
-		_boxes.pop_back()
+		_boxes.pop_back();
 	}
 }
