@@ -9,7 +9,7 @@ class Component{
 		virtual ~Component();
 
 		virtual void update(float deltaTime);
-		virtual void processInput(const uint8_t* keyState) {}
+		virtual void processInput(const struct InputState& state) {}
 
 		virtual void onUpdateWorldTransform() {}
 

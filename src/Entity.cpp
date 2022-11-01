@@ -49,17 +49,17 @@ void Entity::updateEntity(float deltaTime){
 
 }
 
-void Entity::processInput(const uint8_t *keyState){
+void Entity::processInput(const struct InputState& state){
 	if(_state == eActive){
 		for(auto comp: _components){
-			comp->processInput(keyState);
+			comp->processInput(state);
 		}
 
-		entityInput(keyState);
+		entityInput(state);
 	}
 }
 
-void Entity::entityInput(const uint8_t *keyState){
+void Entity::entityInput(const struct InputState& state){
 
 }
 

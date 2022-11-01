@@ -29,6 +29,7 @@ class Game{
 		std::vector<class Entity*> _entities, _pendingEntities;
 
 		class Renderer* _renderer;
+		class InputSystem* _inputSystem;
 		/* class AudioSystem* _audioSystem; */
 		/* class PhysWorld* _physWorld; */
 

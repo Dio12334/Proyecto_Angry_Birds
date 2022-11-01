@@ -5,15 +5,18 @@
 #include "../include/CameraEntity.h"
 #include "../include/MeshComponent.h"
 #include "../include/MoveComponent.h"
+#include "../include/InputSystem.h"
 
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_timer.h>
 #include <algorithm>
 
 
 Game::Game():
 	_renderer(nullptr),
+	_inputSystem(nullptr),
 	/* _audioSystem(nullptr), */
 	/* _physWorld(nullptr), */
 	_isRunning(true),
@@ -42,6 +45,12 @@ bool Game::initialize(){
 	}
 	SDL_Log("Renderer initialized...\n");
 
+	_inputSystem = new InputSystem();
+	if(!_inputSystem->initialize()){
+		SDL_Log("Failed to initialize input system");
+		return false;
+	}
+
 	SDL_Log("Loading data...\n");
 	loadData();
 	SDL_Log("Data loaded...\n");
@@ -60,6 +69,8 @@ void Game::runloop(){
 }
 
 void Game::processInput(){
+
+	_inputSystem->prepareForUpdate();
 	SDL_Event event;
 	while(SDL_PollEvent(&event)){
 		ImGui_ImplSDL2_ProcessEvent(&event);
@@ -73,14 +84,19 @@ void Game::processInput(){
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
-	const Uint8* state = SDL_GetKeyboardState(nullptr);
-	if(state[SDL_SCANCODE_ESCAPE]){
+	
+
+	_inputSystem->update();
+	const InputState& state = _inputSystem->getState();
+	if(state.keyboard.getKeyState(SDL_SCANCODE_ESCAPE) == released){
 		_isRunning = false;
 	}
 
+	_updatingEntities = true;
 	for(auto entity: _entities){
 		entity->processInput(state);
 	}
+	_updatingEntities = false;
 }
 
 void Game::updateGame(){
@@ -135,6 +151,7 @@ void Game::loadData(){
 	MeshComponent* me = new MeshComponent(e);
 	me->setMesh(_renderer->getMesh("Assets/Cube.gpmesh"));
 	MoveComponent* mv = new MoveComponent(e);
+	mv = nullptr;
 
 	_renderer->setAmbientLight(Vector3(0.2f, 0.2f, 0.2f));
 	DirectionalLight& dir = _renderer->getDirectionalLight();
@@ -156,9 +173,10 @@ void Game::unloadData(){
 
 void Game::shutdown(){
 	unloadData();
-	if(_renderer){
+	if(_renderer)
 		_renderer->shutdown();
-	}
+	if(_inputSystem)
+		_inputSystem->shutdown();
 	SDL_Quit();
 }
 

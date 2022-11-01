@@ -2,7 +2,7 @@
 #include "../include/MoveComponent.h"
 #include "../include/Renderer.h"
 #include "../include/Game.h"
-#include <SDL2/SDL_scancode.h>
+#include "../include/InputSystem.h"
 
 CameraEntity::CameraEntity(class Game* game):
 	Entity(game)
@@ -20,23 +20,23 @@ void CameraEntity::updateEntity(float deltaTime){
 	getGame()->getRenderer()->setViewMatrix(view);
 }
 
-void CameraEntity::entityInput(const uint8_t *keys){
+void CameraEntity::entityInput(const struct InputState& state){
 	float forwardSpeed = 0.f;
 	float angularSpeed = 0.f;
 
 	float fs = 300.f;
 	float as = Math::TwoPi;
 
-	if(keys[SDL_SCANCODE_W]){
+	if(state.keyboard.getKeyValue(SDL_SCANCODE_W)){
 		forwardSpeed += fs;
 	}
-	if(keys[SDL_SCANCODE_S]){
+	if(state.keyboard.getKeyValue(SDL_SCANCODE_S)){
 		forwardSpeed -= fs;
 	}
-	if(keys[SDL_SCANCODE_A]){
+	if(state.keyboard.getKeyValue(SDL_SCANCODE_A)){
 		angularSpeed -= as;
 	}
-	if(keys[SDL_SCANCODE_D]){
+	if(state.keyboard.getKeyValue(SDL_SCANCODE_D)){
 		angularSpeed += as;
 	}
 

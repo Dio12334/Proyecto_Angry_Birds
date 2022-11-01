@@ -8,7 +8,7 @@ class CameraEntity: public Entity{
 		CameraEntity(class Game* game);
 
 		void updateEntity(float deltaTime) override;
-		void entityInput(const uint8_t* keys) override;
+		void entityInput(const struct InputState& state) override;
 	private:
 		class MoveComponent* _moveComp;
 };

@@ -20,8 +20,8 @@ class Entity{
 		void updateComponents(float deltaTime);
 		virtual void updateEntity(float deltaTime);
 
-		void processInput(const uint8_t* keyState);
-		virtual void entityInput(const uint8_t* keyState);
+		void processInput(const struct InputState& state);
+		virtual void entityInput(const struct InputState& state);
 
 		const Vector3& getPosition() const { return _position; }
 		void setPosition(const Vector3& pos) { _position = pos; _recomputeWorldTransform = true; }
