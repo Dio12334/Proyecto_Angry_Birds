@@ -6,21 +6,24 @@
 #include "../include/MeshComponent.h"
 #include "../include/MoveComponent.h"
 #include "../include/InputSystem.h"
+#include "../include/PhysWorld.h"
 
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_timer.h>
 #include <algorithm>
+#include <cstdio>
 
 
 Game::Game():
 	_renderer(nullptr),
 	_inputSystem(nullptr),
 	/* _audioSystem(nullptr), */
-	/* _physWorld(nullptr), */
+	_physWorld(nullptr),
 	_isRunning(true),
-	_updatingEntities(false)
+	_updatingEntities(false),
+	_debugMode(false)
 {
 
 }
@@ -28,14 +31,11 @@ Game::Game():
 bool Game::initialize(){
 	SDL_Log("Begin initialization...\n");
 	int sdlInitFlags = SDL_INIT_VIDEO | SDL_INIT_AUDIO;
-	SDL_Log("Initialize SDL...\n");
 	if(SDL_Init(sdlInitFlags) != 0){
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		return false;
 	}
-	SDL_Log("SDL initialized...\n");
 
-	SDL_Log("Initialize Renderer...\n");
 	_renderer = new Renderer(this);
 	if(!_renderer->initialize(1024.0f, 768.0f)){
 		SDL_Log("Failed to initialize renderer");
@@ -43,7 +43,6 @@ bool Game::initialize(){
 		_renderer = nullptr;
 		return false;
 	}
-	SDL_Log("Renderer initialized...\n");
 
 	_inputSystem = new InputSystem();
 	if(!_inputSystem->initialize()){
@@ -51,9 +50,9 @@ bool Game::initialize(){
 		return false;
 	}
 
-	SDL_Log("Loading data...\n");
+	_physWorld = new PhysWorld(this);
+
 	loadData();
-	SDL_Log("Data loaded...\n");
 
 	_ticksCount = SDL_GetTicks();
 	SDL_Log("Initialized Successfully \n");
@@ -78,6 +77,16 @@ void Game::processInput(){
 			case SDL_QUIT:
 				_isRunning = false;
 				break;
+			case SDL_MOUSEWHEEL:
+				_inputSystem->processEvent(event);
+				break;
+			/* case SDL_KEYDOWN:{ */
+			/* 	const Uint8* keybo = SDL_GetKeyboardState(NULL); */
+			/* 	for(int i = 0; i < SDL_NUM_SCANCODES; ++i){ */
+			/* 		std::printf("%d ", keybo[i]); */
+			/* 	} */
+			/* 	break; */
+			/* 				 } */
 		}
 	}
 
@@ -90,6 +99,10 @@ void Game::processInput(){
 	const InputState& state = _inputSystem->getState();
 	if(state.keyboard.getKeyState(SDL_SCANCODE_ESCAPE) == released){
 		_isRunning = false;
+	}
+
+	if(state.keyboard.getKeyState(SDL_SCANCODE_COMMA) == ButtonState::pressed){
+		_debugMode = !(_debugMode);
 	}
 
 	_updatingEntities = true;
@@ -132,9 +145,11 @@ void Game::updateGame(){
 }
 
 void Game::generateOutput(){
-	for(auto entity: _entities){
-		if(entity->getDisplayInfo()){
-			entity->displayInfo();
+	if(_debugMode){
+		for(auto entity: _entities){
+			if(entity->getDisplayInfo()){
+				entity->displayInfo();
+			}
 		}
 	}
 	_renderer->draw();
@@ -151,7 +166,6 @@ void Game::loadData(){
 	MeshComponent* me = new MeshComponent(e);
 	me->setMesh(_renderer->getMesh("Assets/Cube.gpmesh"));
 	MoveComponent* mv = new MoveComponent(e);
-	mv = nullptr;
 
 	_renderer->setAmbientLight(Vector3(0.2f, 0.2f, 0.2f));
 	DirectionalLight& dir = _renderer->getDirectionalLight();

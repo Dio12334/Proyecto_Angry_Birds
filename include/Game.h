@@ -17,7 +17,7 @@ class Game{
 
 		class Renderer* getRenderer() { return _renderer; }
 		/* class AudioSystem* getAudioSystem() { return _audioSystem; } */
-		/* class PhysWorld* getPhysWorld() { return _physWorld; } */
+		class PhysWorld* getPhysWorld() { return _physWorld; }
 
 	private:
 		void processInput();
@@ -31,13 +31,15 @@ class Game{
 		class Renderer* _renderer;
 		class InputSystem* _inputSystem;
 		/* class AudioSystem* _audioSystem; */
-		/* class PhysWorld* _physWorld; */
+		class PhysWorld* _physWorld;
 
 		Uint32 _ticksCount;
 		bool _isRunning;
 		bool _updatingEntities;
 
 		class CameraEntity* _cameraEntity;
+
+		bool _debugMode;
 };
 
 #endif
