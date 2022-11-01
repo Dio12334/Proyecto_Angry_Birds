@@ -23,11 +23,16 @@ Game::Game():
 }
 
 bool Game::initialize(){
+	SDL_Log("Begin initialization...\n");
 	int sdlInitFlags = SDL_INIT_VIDEO | SDL_INIT_AUDIO;
+	SDL_Log("Initialize SDL...\n");
 	if(SDL_Init(sdlInitFlags) != 0){
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		return false;
 	}
+	SDL_Log("SDL initialized...\n");
+
+	SDL_Log("Initialize Renderer...\n");
 	_renderer = new Renderer(this);
 	if(!_renderer->initialize(1024.0f, 768.0f)){
 		SDL_Log("Failed to initialize renderer");
@@ -35,8 +40,14 @@ bool Game::initialize(){
 		_renderer = nullptr;
 		return false;
 	}
+	SDL_Log("Renderer initialized...\n");
+
+	SDL_Log("Loading data...\n");
 	loadData();
+	SDL_Log("Data loaded...\n");
+
 	_ticksCount = SDL_GetTicks();
+	SDL_Log("Initialized Successfully \n");
 	return true;
 }
 
@@ -132,6 +143,7 @@ void Game::loadData(){
 	dir.specColor = Vector3(0.8f, 0.8f, 0.8f);
 
 	_cameraEntity = new CameraEntity(this);
+	_cameraEntity->setDisplayInfo(true);
 }
 
 void Game::unloadData(){

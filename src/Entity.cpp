@@ -3,7 +3,9 @@
 #include "../include/Component.h"
 #include "../include/ImguiHeaders.h"
 
+#include <string>
 #include <algorithm>
+
 
 Entity::Entity(class Game* game):
 	_state(eActive),
@@ -13,7 +15,8 @@ Entity::Entity(class Game* game):
 	_scale(1.0f),
 	_recomputeWorldTransform(true),
 	_game(game),
-	_displayInfo(false)
+	_displayInfo(false),
+	_ID(Entity::IDAssigner++)
 {
 	_game->addEntity(this);
 }
@@ -108,8 +111,8 @@ void Entity::removeComponent(class Component *component){
 }
 
 void Entity::displayInfo(){
-	if(true){
-		ImGui::Begin("Entity Info");	
+	std::string windowName = std::string("Entity Info ") + std::to_string(_ID);
+	if(ImGui::Begin(windowName.c_str(), &_displayInfo)){
 		if(ImGui::CollapsingHeader("General Information")){
 			ImGui::InputFloat3("Position", &_position.x);
 			ImGui::SliderFloat("Scale", &_scale,0, 1000);

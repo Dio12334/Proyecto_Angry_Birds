@@ -65,7 +65,13 @@ class Entity{
 		class Game* _game;
 	
 		bool _displayInfo;
+
+		unsigned int _ID;
+
+		static unsigned int IDAssigner;
 };
+
+inline unsigned int Entity::IDAssigner = 0;
 
 #endif
 

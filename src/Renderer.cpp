@@ -7,6 +7,7 @@
 #include "../include/SpriteComponent.h"
 #include "../include/MeshComponent.h"
 #include "../include/ImguiHeaders.h"
+#include <SDL2/SDL_log.h>
 #include <SDL2/SDL_video.h>
 #include <GL/glew.h>
 #include <algorithm>
@@ -15,7 +16,8 @@
 Renderer::Renderer(Game* game):
 	_game(game),
 	_spriteShader(nullptr),
-	_meshShader(nullptr)
+	_meshShader(nullptr),
+	_window(nullptr)
 
 {
 
