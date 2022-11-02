@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 
 PhysWorld::PhysWorld(class Game* game):
 	_game(game)
@@ -16,7 +17,7 @@ bool PhysWorld::segmentCast(const LineSegment &l, CollisionInfo &outColl){
 
 	float closest = Math::Infinity;
 	Vector3 norm;
-
+	
 	for(auto box: _boxes){
 		float t;
 		if(intersect(l, box->getWorldBox(), t, norm)){

@@ -3,6 +3,7 @@
 
 #include "Component.h"
 #include "Collision.h"
+#include <iostream>
 
 class BoxComponent: public Component{
 	public:

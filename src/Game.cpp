@@ -7,6 +7,9 @@
 #include "../include/MoveComponent.h"
 #include "../include/InputSystem.h"
 #include "../include/PhysWorld.h"
+#include "../include/BoxComponent.h"
+#include "../include/Mesh.h"
+
 
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
@@ -152,13 +155,16 @@ void Game::loadData(){
 	Entity* e = new Entity(this);
 	e->setPosition(Vector3(200.f, 75.f, 0.f));
 	e->setScale(100.0f);
-	e->setDisplayInfo(true);
+	Mesh* mesh = _renderer->getMesh("Assets/Cube.gpmesh");
+	MeshComponent* me = new MeshComponent(e);
+	me->setMesh(mesh);
+	MoveComponent* mv = new MoveComponent(e);
+	BoxComponent* bc = new BoxComponent(e);
+	bc->setObjectBox(mesh->getBox());
+	bc->setShouldRotate(true);
 	Quaternion q(Vector3::UnitY, -Math::PiOver2);
 	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::Pi + Math::Pi/4.f));
 	e->setRotation(q);
-	MeshComponent* me = new MeshComponent(e);
-	me->setMesh(_renderer->getMesh("Assets/Cube.gpmesh"));
-	MoveComponent* mv = new MoveComponent(e);
 
 	_renderer->setAmbientLight(Vector3(0.2f, 0.2f, 0.2f));
 	DirectionalLight& dir = _renderer->getDirectionalLight();
@@ -167,7 +173,7 @@ void Game::loadData(){
 	dir.specColor = Vector3(0.8f, 0.8f, 0.8f);
 
 	_cameraEntity = new CameraEntity(this);
-	_cameraEntity->setDisplayInfo(true);
+	_cameraEntity->setDisplayInfo(false);
 }
 
 void Game::unloadData(){
@@ -180,6 +186,7 @@ void Game::unloadData(){
 
 void Game::shutdown(){
 	unloadData();
+	delete _physWorld;
 	if(_renderer)
 		_renderer->shutdown();
 	if(_inputSystem)

@@ -86,7 +86,6 @@ void Entity::computeWorldTransform(){
         _worldTransform = Matrix4::CreateScale(_scale);
         _worldTransform *=  Matrix4::CreateFromQuaternion(_rotation);
         _worldTransform *= Matrix4::CreateTranslation(_position);
-
         for(auto comp: _components){
             comp->onUpdateWorldTransform();
         }

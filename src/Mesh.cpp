@@ -10,7 +10,7 @@
 #include <SDL2/SDL_log.h>
 
 Mesh::Mesh():
-	_box(Vector3::NegInfinity,  Vector3::Infinity),
+	_box(Vector3::Infinity,  Vector3::NegInfinity),
 	_vertexArray(nullptr),
 	_radius(0.0f),
 	_specPower(100.0f)

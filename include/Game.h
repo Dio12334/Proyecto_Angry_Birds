@@ -19,6 +19,8 @@ class Game{
 		/* class AudioSystem* getAudioSystem() { return _audioSystem; } */
 		class PhysWorld* getPhysWorld() { return _physWorld; }
 
+		bool debugMode() const { return _debugMode; }
+
 	private:
 		void processInput();
 		void handleKeyPress(int key);
