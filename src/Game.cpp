@@ -9,7 +9,7 @@
 #include "../include/PhysWorld.h"
 #include "../include/BoxComponent.h"
 #include "../include/Mesh.h"
-
+#include "../include/PlaneEntity.h"
 
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
@@ -155,7 +155,7 @@ void Game::loadData(){
 	Entity* e = new Entity(this);
 	e->setPosition(Vector3(200.f, 75.f, 0.f));
 	e->setScale(100.0f);
-	Mesh* mesh = _renderer->getMesh("Assets/Cube.gpmesh");
+	Mesh* mesh = _renderer->getMesh("Assets/bird.gpmesh");
 	MeshComponent* me = new MeshComponent(e);
 	me->setMesh(mesh);
 	MoveComponent* mv = new MoveComponent(e);
@@ -174,6 +174,18 @@ void Game::loadData(){
 
 	_cameraEntity = new CameraEntity(this);
 	_cameraEntity->setDisplayInfo(false);
+
+	const float start = -1250.f;
+	const float size = 250.f;
+	for (int i = 0; i < 1; i++)
+	{
+		for (int j = 0; j < 1; j++)
+		{
+			e = new PlaneEntity(this);
+			e->setPosition(Vector3(start + i * size, start + j * size, -200.0f));
+		}
+	}
+
 }
 
 void Game::unloadData(){
