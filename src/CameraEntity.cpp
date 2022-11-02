@@ -7,6 +7,8 @@
 #include "../include/PhysWorld.h"
 #include "../include/Math.h"
 #include "../include/MeshComponent.h"
+
+#include "../include/BirdEntity.h"
 #include <SDL2/SDL_mouse.h>
 
 
@@ -73,6 +75,28 @@ void CameraEntity::entityInput(const struct InputState& state){
 		if(phys->segmentCast(l, info)){
 			info.entity->setDisplayInfo(true);	
 		}
-
 	}
+	else if(!getGame()->debugMode() && state.mouse.getButtonState(SDL_BUTTON_LEFT) == ButtonState::released){
+		BirdEntity* b = new BirdEntity(getGame());
+
+		int ix, iy;
+		SDL_GetMouseState(&ix, &iy);
+		float x, y;
+		x = ix - getGame()->getRenderer()->getScreenWidth()/2;
+		y = getGame()->getRenderer()->getScreenHeight()/2 - iy;
+		
+		Vector3 screenPoint(x, y, 0.0f);
+		Vector3 start = getGame()->getRenderer()->unproject(screenPoint);
+		// Get end point (in center of screen, between near and far)
+		screenPoint.z = 0.9f;
+		Vector3 end = getGame()->getRenderer()->unproject(screenPoint);
+		// Get direction vector
+		Vector3 dir = end - start;
+		dir.Normalize();
+
+		b->setPosition(end);
+		b->addForce(dir*30000);
+	}
+
+	
 }

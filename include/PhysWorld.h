@@ -23,10 +23,16 @@ class PhysWorld{
 
 		void addBox(class BoxComponent* box);
 		void removeBox(class BoxComponent* box);
+		void addRigid(class RigidBody* rigid);
+		void removeRigid(class RigidBody* rigid);
+
+		void addGlobalForce(Vector3 force);
+		void subtractGlobalForce(Vector3 force);
 
 	private:
 		class Game* _game;
 		std::vector<class BoxComponent*> _boxes;
+		std::vector<class RigidBody*> _rigids;
 };
 
 #endif

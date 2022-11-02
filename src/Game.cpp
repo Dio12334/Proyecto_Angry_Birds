@@ -10,6 +10,8 @@
 #include "../include/BoxComponent.h"
 #include "../include/Mesh.h"
 #include "../include/PlaneEntity.h"
+#include "../include/RigidBody.h"
+
 
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
@@ -115,7 +117,9 @@ void Game::updateGame(){
 		deltaTime = 0.05f;
 	}
 	_ticksCount = SDL_GetTicks();
-
+	const float ratio = 000.f;
+	//gravity
+	_physWorld->addGlobalForce(Vector3::NegUnitZ * ratio);
 	_updatingEntities = true;
 	for(auto entity: _entities){
 		entity->update(deltaTime);
@@ -127,6 +131,7 @@ void Game::updateGame(){
 	}
 	_pendingEntities.clear();
 
+	_physWorld->subtractGlobalForce(Vector3::NegUnitZ * ratio);
 	std::vector<Entity*> deadEntities;
 	for(auto entity: _entities){
 		if(entity->getState() == Entity::eDead){
@@ -155,7 +160,7 @@ void Game::loadData(){
 	Entity* e = new Entity(this);
 	e->setPosition(Vector3(200.f, 75.f, 0.f));
 	e->setScale(100.0f);
-	Mesh* mesh = _renderer->getMesh("Assets/bird.gpmesh");
+	Mesh* mesh = _renderer->getMesh("Assets/Cube.gpmesh");
 	MeshComponent* me = new MeshComponent(e);
 	me->setMesh(mesh);
 	MoveComponent* mv = new MoveComponent(e);
@@ -165,6 +170,9 @@ void Game::loadData(){
 	Quaternion q(Vector3::UnitY, -Math::PiOver2);
 	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::Pi + Math::Pi/4.f));
 	e->setRotation(q);
+	RigidBody* ri = new RigidBody(e);
+	ri->addForce(Vector3::UnitZ);
+	ri->setMass(0.1);
 
 	_renderer->setAmbientLight(Vector3(0.2f, 0.2f, 0.2f));
 	DirectionalLight& dir = _renderer->getDirectionalLight();

@@ -1,5 +1,6 @@
 #include "../include/PhysWorld.h"
 #include "../include/BoxComponent.h"
+#include "../include/RigidBody.h"
 
 #include <SDL2/SDL.h>
 #include <algorithm>
@@ -62,6 +63,7 @@ void PhysWorld::testSweepAndPrune(std::function<void (class Entity *, class Enti
 	}
 }
 
+
 void PhysWorld::addBox(class BoxComponent *box){
 	_boxes.emplace_back(box);
 }
@@ -71,5 +73,29 @@ void PhysWorld::removeBox(class BoxComponent *box){
 	if(iter != _boxes.end()){
 		std::iter_swap(iter, _boxes.end() - 1);
 		_boxes.pop_back();
+	}
+}
+
+void PhysWorld::addRigid(class RigidBody *rigid){
+	_rigids.emplace_back(rigid);
+}
+
+void PhysWorld::removeRigid(class RigidBody *rigid){
+	auto iter = std::find(_rigids.begin(), _rigids.end(), rigid);
+	if(iter != _rigids.end()){
+		std::iter_swap(iter, _rigids.end() - 1);
+		_rigids.pop_back();
+	}
+}
+
+void PhysWorld::addGlobalForce(Vector3 force){
+	for(auto rigid: _rigids){
+		rigid->addForce(force);
+	}
+}
+
+void PhysWorld::subtractGlobalForce(Vector3 force){
+	for(auto rigid: _rigids){
+		rigid->addForce(-1.0*force);	
 	}
 }
