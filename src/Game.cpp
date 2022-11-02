@@ -117,7 +117,7 @@ void Game::updateGame(){
 		deltaTime = 0.05f;
 	}
 	_ticksCount = SDL_GetTicks();
-	const float ratio = 000.f;
+	const float ratio = 200.f;
 	//gravity
 	_physWorld->addGlobalForce(Vector3::NegUnitZ * ratio);
 	_updatingEntities = true;
@@ -131,7 +131,7 @@ void Game::updateGame(){
 	}
 	_pendingEntities.clear();
 
-	_physWorld->subtractGlobalForce(Vector3::NegUnitZ * ratio);
+	/* _physWorld->subtractGlobalForce(Vector3::NegUnitZ * ratio); */
 	std::vector<Entity*> deadEntities;
 	for(auto entity: _entities){
 		if(entity->getState() == Entity::eDead){
@@ -170,9 +170,6 @@ void Game::loadData(){
 	Quaternion q(Vector3::UnitY, -Math::PiOver2);
 	q = Quaternion::Concatenate(q, Quaternion(Vector3::UnitZ, Math::Pi + Math::Pi/4.f));
 	e->setRotation(q);
-	RigidBody* ri = new RigidBody(e);
-	ri->addForce(Vector3::UnitZ);
-	ri->setMass(0.1);
 
 	_renderer->setAmbientLight(Vector3(0.2f, 0.2f, 0.2f));
 	DirectionalLight& dir = _renderer->getDirectionalLight();
